@@ -10,3 +10,15 @@ download_dir = '/content/drive/MyDrive/ANAC_DATA'
 # --cut-dirs=4 remove os 4 diretórios iniciais ("siros/registros/diversos/vra")
 # -R "index.html*" ignora arquivos index gerados durante o download
 !wget -r -np -nH --cut-dirs=4 -R "index.html*" -P {download_dir} https://siros.anac.gov.br/siros/registros/diversos/vra/
+
+
+# Monta o Google Drive
+from google.colab import drive
+drive.mount('/content/drive')
+
+# Define o diretório de destino para os dados (ajuste o caminho conforme necessário)
+download_dir = '/content/drive/MyDrive/ANAC_DATA'
+!mkdir -p {download_dir}
+
+# Comando wget para download recursivo com a opção -c para continuar downloads interrompidos
+!wget -c -r -np -nH --cut-dirs=4 -R "index.html*" -P {download_dir} https://siros.anac.gov.br/siros/registros/diversos/vra/
