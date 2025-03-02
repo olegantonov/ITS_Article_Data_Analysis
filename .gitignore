@@ -1,1 +1,14 @@
 notepad .gitignore
+
+# Arquivos do Windows e do OneDrive
+Thumbs.db
+.DS_Store
+*.bak
+*.tmp
+
+# Arquivos grandes e CSVs (se não forem essenciais para o repositório)
+*.csv
+
+# Pastas específicas que você quer ignorar
+__pycache__/
+.env
