@@ -1,18 +1,23 @@
+"""Download dos arquivos VRA da ANAC.
+
+Este script utiliza o caminho configurado em ``config.py`` para salvar os
+arquivos CSV anuais. Caso esteja em um ambiente Windows sem ``wget`` no PATH,
+defina a variável de ambiente ``WGET_PATH`` com o caminho completo para o
+executável.
+"""
+
 import os
 import subprocess
+from config import RAW_DIR
 
-# Diretório de destino para os dados (pasta do projeto)
-download_dir = r"C:\Users\danie\OneDrive\Documentos\Mestrado-ITS-Article\docs"
+# Diretório de destino para os dados (``data/raw`` por padrão)
+download_dir = RAW_DIR
 
-# Caminho completo do wget no Windows
-wget_path = r"C:\ProgramData\chocolatey\lib\Wget\tools\wget.exe"
+# Caminho do executável ``wget``. Por padrão espera que ``wget`` esteja no PATH
+wget_path = os.getenv("WGET_PATH", "wget")
 
-# Cria o diretório, se não existir
-if not os.path.exists(download_dir):
-    os.makedirs(download_dir)
-    print(f"[LOG] Diretório criado: {download_dir}")
-else:
-    print(f"[LOG] Diretório existente: {download_dir}")
+# Garante que o diretório exista
+download_dir.mkdir(parents=True, exist_ok=True)
 
 # Lista dos anos para os quais serão baixados os arquivos (de 2010 a 2024)
 years = range(2010, 2024)
@@ -24,8 +29,7 @@ base_url = "https://siros.anac.gov.br/siros/registros/diversos/vra/"
 for year in years:
     url = f"{base_url}{year}/"
     print(f"[LOG] Iniciando download para o ano {year} a partir da URL: {url}")
-    
-    # Comando wget ajustado com caminho absoluto
+
     cmd = [
         wget_path,
         "-c",
@@ -33,18 +37,18 @@ for year in years:
         "-np",
         "-nH",
         "--cut-dirs=4",
-        "-R", "index.html*",
-        "-P", download_dir,
-        url
+        "-R",
+        "index.html*",
+        "-P",
+        str(download_dir),
+        url,
     ]
-    
-    # Executa o comando
-    result = subprocess.run(cmd, shell=True)
-    
-    # Verifica se o download foi bem-sucedido
-    if result.returncode == 0:
-        print(f"[LOG] Download para o ano {year} concluído com sucesso.")
-    else:
-        print(f"[LOG] Erro no download para o ano {year}. Código de saída: {result.returncode}")
 
+    result = subprocess.run(cmd)
+    if result.returncode == 0:
+        print(f"[LOG] Download para o ano {year} concluído.")
+    else:
+        print(
+            f"[LOG] Erro no download para o ano {year}. Código: {result.returncode}"
+        )
 print("[LOG] Todos os downloads foram concluídos.")
