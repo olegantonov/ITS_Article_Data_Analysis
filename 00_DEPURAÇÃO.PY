@@ -1,7 +1,21 @@
 import pandas as pd
+import argparse
+import os
 
 # Caminho do arquivo unificado
-file_path = r"C:\Users\danie\OneDrive\Documentos\Mestrado-ITS-Article\ANÁLISE_FINAL\DADOS_CONSOLIDADOS_2010_2024.csv"
+parser = argparse.ArgumentParser(description="Depuração de dados")
+parser.add_argument(
+    "--base_dir",
+    default=".",
+    help="Diretório base onde os dados estão localizados",
+)
+args = parser.parse_args()
+
+file_path = os.path.join(
+    args.base_dir,
+    "ANÁLISE_FINAL",
+    "DADOS_CONSOLIDADOS_2010_2024.csv",
+)
 
 # Carrega um chunk para investigação (ajuste nrows conforme necessário)
 df = pd.read_csv(file_path, sep=",", encoding="utf-8", low_memory=False, nrows=100000)
@@ -27,8 +41,3 @@ print(df["Modelo Equipamento_norm"].value_counts())
 # Para investigar as rotas: cria uma coluna com a rota ordenada (para considerar ida e volta como a mesma)
 df["Rota_norm"] = df["Sigla ICAO Aeroporto Origem_norm"].combine(
     df["Sigla ICAO Aeroporto Destino_norm"],
-    lambda o, d: "-".join(sorted([o, d]))
-)
-
-print("\nRotas (ordenadas) e contagens:")
-print(df["Rota_norm"].value_counts())
