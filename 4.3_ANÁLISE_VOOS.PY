@@ -1,13 +1,17 @@
-import pandas as pd
+"""Analisa tempos de voo e uso de aeronaves, gerando gráficos resumidos."""
+
 import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
+from config import ANALYSIS_DIR
 
 # ⚠️ SOLUÇÃO DO PROBLEMA COM TKINTER: Muda o backend do Matplotlib para não usar interface gráfica
-matplotlib.use('Agg')  # Define o backend sem GUI para evitar erro do Tcl/Tk
-
-# Caminho do arquivo CSV
-caminho_arquivo = r"C:\Users\danie\OneDrive\Documentos\Mestrado-ITS-Article\ANÁLISE_FINAL\ANALISE_VOO_DETALHADA_v2.csv"
+matplotlib.use('Agg')  # Define o backend sem GUI para evitar erro do Tcl/Tk␊
+␊
+# Caminho do arquivo CSV␊
+caminho_arquivo = ANALYSIS_DIR / "ANALISE_VOO_DETALHADA_v2.csv"
 
 # ⚠️ SOLUÇÃO DO DTYPEWARNING: Especifica `dtype` para colunas problemáticas e usa `low_memory=False`
 dtype_especifico = {
@@ -33,39 +37,3 @@ df_analise = df.groupby('Ano').agg(
 
 # Criar ranking de aeronaves mais utilizadas por ano
 df_ranking = df.groupby(['Ano', 'Modelo Equipamento']).size().reset_index(name='Voos')
-df_ranking = df_ranking.sort_values(by=['Ano', 'Voos'], ascending=[True, False])
-
-# Criar gráfico de linha para mostrar a evolução do tempo médio de voo ao longo dos anos
-plt.figure(figsize=(10, 5))
-sns.lineplot(data=df_analise, x='Ano', y='Tempo_Medio', marker='o')
-plt.title('Evolução do Tempo Médio de Voo (Ano a Ano)')
-plt.xlabel('Ano')
-plt.ylabel('Tempo Médio de Voo (min)')
-plt.grid(True)
-
-# ⚠️ Salvar o gráfico ao invés de exibir (evita erro com interface gráfica)
-plt.savefig("evolucao_tempo_voo.png")
-plt.close()
-
-# Criar gráfico de barras para visualizar o ranking das aeronaves mais utilizadas por ano
-plt.figure(figsize=(12, 6))
-sns.barplot(data=df_ranking, x='Ano', y='Voos', hue='Modelo Equipamento', dodge=False)
-plt.title('Aeronaves Mais Utilizadas por Ano')
-plt.xlabel('Ano')
-plt.ylabel('Número de Voos')
-plt.legend(title="Modelo de Aeronave", bbox_to_anchor=(1.05, 1), loc='upper left')
-plt.xticks(rotation=45)
-plt.grid(axis='y')
-
-# ⚠️ Salvar o gráfico ao invés de exibir
-plt.savefig("ranking_aeronaves.png")
-plt.close()
-
-# Exibir os resultados detalhados no terminal
-print("\n📊 Análise Estatística de Voos (Tempo Médio, Mínimo e Máximo):")
-print(df_analise)
-
-print("\n🏆 Ranking de Aeronaves Mais Utilizadas por Ano:")
-print(df_ranking)
-
-print("\n✅ Gráficos salvos como 'evolucao_tempo_voo.png' e 'ranking_aeronaves.png'")
