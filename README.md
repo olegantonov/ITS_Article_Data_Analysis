@@ -1,11 +1,12 @@
-
-## 📊 Análise de Dados de Voos da ANAC (2010–2024)
+# 📊 Análise de Dados de Voos da ANAC (2010–2024)
 
 **Este repositório é parte integrante do artigo:**
 
 > **THE IMPACTS OF INTELLIGENT TRANSPORTATION SYSTEMS ON AVIATION OPERATIONAL EFFICIENCY: AN ANALYSIS OF PBN IMPLEMENTATION ON BRAZIL'S MAIN AIR ROUTES**  
 > **Autores:** Daniel Guilherme Marques da Silva, Pastor Willy Gonzales Taco  
 > **Universidade de Brasília – Programa de Pós-Graduação em Transportes**
+
+---
 
 ## 📄 Resumo (Abstract)
 
@@ -20,85 +21,84 @@ Todos os arquivos são organizados automaticamente da seguinte forma:
 - `raw/` – arquivos CSV originais por ano (2010–2024)
 - `analysis/` – resultados processados e gráficos gerados
 
-> Por padrão, os dados são salvos no diretório `data/`. Para personalizar o caminho, defina a variável de ambiente `ANAC_DATA_DIR`.
+> Por padrão, os dados são salvos no diretório `./data/`. Para customizar, defina a variável de ambiente `ANAC_DATA_DIR` ou configure via arquivo `.env`.
 
 ---
 
 ## ⚙️ Requisitos
 
 - Python **3.10+**
-- Instalação das bibliotecas:
+- Instale as dependências com:
 
 ```bash
-pip install pandas numpy matplotlib seaborn scipy statsmodels
+pip install -r requirements.txt
 ```
 
 ---
 
-## 📥 Download dos Dados
+## ⚙️ Configuração via `.env`
 
-Execute o script abaixo (exemplo para Google Colab):
+Crie um arquivo `.env` com a seguinte estrutura (exemplo disponível como `.env.example`):
 
-```python
-from google.colab import drive
-import os
-
-drive.mount('/content/drive')
-output_dir = '/content/drive/MyDrive/ANAC_DATA'
-os.makedirs(output_dir, exist_ok=True)
-
-!wget -c -r -np -nH --cut-dirs=4 -R "index.html*" -P $output_dir \
-https://siros.anac.gov.br/siros/registros/diversos/vra/
+```env
+ANAC_DATA_DIR=/caminho/absoluto/para/data
 ```
 
 ---
 
-## ▶️ Execução dos Scripts
+## ▶️ Execução Automatizada com `main.py`
 
-Execute os arquivos na ordem abaixo:
+Execute todo o pipeline de forma sequencial ou a partir de qualquer etapa:
 
-### 1. Download dos dados brutos:
+### 🔁 Executar todas as etapas:
+```bash
+python main.py
+```
+
+### 🔄 Executar a partir de um passo específico:
+```bash
+python main.py --from-step 3_FILTRO_AERÓDROMOS_VARIAVEIS_AERONAVES.PY
+```
+
+Etapas disponíveis:
+- 0_DOWNLOAD_DADOS.PY
+- 1_CONSOLIDAÇÃO_DADOS.PY
+- 2_ANÁLISE_DADOS_CONSOLIDADOS.PY
+- 3_FILTRO_AERÓDROMOS_VARIAVEIS_AERONAVES.PY
+- 3.1_ANÁLISE_GRÁFICA_VOOS_POR_ANO_FILTRO.PY
+- 4_ANÁLISE_E_INSERÇÃO_DADOS_E_VARIÁVEIS.PY
+- 4.1_FILTRO_TEMPOS_DIFERENTES.PY
+- 4.3_ANÁLISE_VOOS.PY
+- 5_ANÁLISE_REGRESSÃO_LINEAR_MULTIPLA.PY
+- 00_DEPURAÇÃO.PY
+
+---
+
+## 🛠️ Execução Manual (alternativa)
+
+Você também pode executar os scripts separadamente, na ordem abaixo:
+
 ```bash
 python 0_DOWNLOAD_DADOS.PY
-```
-
-### 2. Consolidação dos CSVs:
-```bash
 python 1_CONSOLIDACAO_DADOS.PY
-```
-
-### 3. Análises iniciais:
-```bash
 python 2_ANALISE_DADOS_CONSOLIDADOS.PY
 python 3_FILTRO_AERODROMOS_VARIAVEIS_AERONAVES.PY
 python 3.1_ANALISE_GRAFICA_VOOS_POR_ANO_FILTRO.PY
-```
-
-### 4. Inserção de variáveis e filtros adicionais:
-```bash
 python 4_ANALISE_E_INSERCAO_DADOS_E_VARIAVEIS.PY
 python 4.1_FILTRO_TEMPOS_DIFERENTES.PY
 python 4.3_ANALISE_VOOS.PY
-```
-
-### 5. Modelagem estatística (regressão):
-```bash
 python 5_ANALISE_REGRESSAO_LINEAR_MULTIPLA.PY
-```
-
-### 🔍 Script auxiliar:
-```bash
 python 00_DEPURACAO.PY
 ```
-> Use este script para verificações manuais ou análises pontuais.
 
 ---
 
 ## 📌 Observações
 
-- O script de download organiza os dados em pastas anuais automaticamente.
-- Todos os scripts devem ser executados sequencialmente para manter a integridade dos dados processados.
-- Adapte os caminhos caso execute em ambiente local, fora do Google Colab ou Google Drive.
+- O script de download organiza automaticamente os dados por ano.
+- Scripts podem ser executados com segurança em chunks — ótimo para grandes volumes.
+- Logs informativos são emitidos durante cada etapa.
+- Compatível com execução local ou ambiente em nuvem (ex: Colab, Kaggle).
 
 ---
 
@@ -106,4 +106,5 @@ python 00_DEPURACAO.PY
 
 Este projeto foi desenvolvido no contexto do Programa de Pós-Graduação em Transportes da Universidade de Brasília (UnB).  
 Dúvidas ou sugestões? Entre em contato com os autores por meio dos canais acadêmicos disponíveis.
-```
+
+---
