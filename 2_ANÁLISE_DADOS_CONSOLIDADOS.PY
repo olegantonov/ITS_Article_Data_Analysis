@@ -1,7 +1,10 @@
+"""Explora as colunas disponíveis no arquivo consolidado e seus valores únicos."""
+
 import pandas as pd
+from config import ANALYSIS_DIR
 
 # Caminho do arquivo unificado
-file_path = r"C:\Users\danie\OneDrive\Documentos\Mestrado-ITS-Article\ANÁLISE_FINAL\DADOS_CONSOLIDADOS_2010_2024.csv"
+file_path = ANALYSIS_DIR / "DADOS_CONSOLIDADOS_2010_2024.csv"
 
 # Primeiro, leia somente o cabeçalho para verificar as colunas disponíveis
 df_header = pd.read_csv(file_path, sep=",", encoding='utf-8', nrows=0, low_memory=False)
@@ -42,4 +45,4 @@ print("\n--- Relatório Final dos Valores Únicos ---")
 for col in columns_of_interest:
     print(f"Valores únicos para a coluna '{col}':")
     print(unique_values[col])
-    print("-" * 50)
+    print("-" * 50)␊
