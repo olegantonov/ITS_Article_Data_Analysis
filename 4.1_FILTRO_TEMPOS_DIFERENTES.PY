@@ -1,7 +1,10 @@
+"""Gera um arquivo contendo apenas os voos com tempos real e estimado diferentes."""
+
 import pandas as pd
+from config import ANALYSIS_DIR
 
 # Caminho para o arquivo CSV original
-caminho_arquivo = r"C:\Users\danie\OneDrive\Documentos\Mestrado-ITS-Article\ANÁLISE_FINAL\ANALISE_VOO_DETALHADA_v2.csv"
+caminho_arquivo = ANALYSIS_DIR / "ANALISE_VOO_DETALHADA_v2.csv"
 
 # Lê o arquivo CSV em um DataFrame (ajuste delimitador e encoding se necessário)
 df = pd.read_csv(caminho_arquivo, sep=',', encoding='utf-8')
