@@ -1,12 +1,17 @@
-import pandas as pd
+"""Filtra o conjunto consolidado para rotas e aeronaves de interesse."""
+
 import logging
+from pathlib import Path
+
+import pandas as pd
+from config import ANALYSIS_DIR
 
 # Configuração do logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Caminhos dos arquivos de entrada e saída
-input_file = r"C:\Users\danie\OneDrive\Documentos\Mestrado-ITS-Article\ANÁLISE_FINAL\DADOS_CONSOLIDADOS_2010_2024.csv"
-output_file = r"C:\Users\danie\OneDrive\Documentos\Mestrado-ITS-Article\ANÁLISE_FINAL\FILTRADOS_DADOS.csv"
+input_file = ANALYSIS_DIR / "DADOS_CONSOLIDADOS_2010_2024.csv"
+output_file = ANALYSIS_DIR / "FILTRADOS_DADOS.csv"
 
 # Conjuntos permitidos (todos em caixa alta)
 allowed_models = {"B738", "A320", "A319", "B737", "A321"}
@@ -32,27 +37,7 @@ allowed_routes = {
 
 # Tamanho do chunk para processamento (ajuste conforme necessário)
 chunk_size = 100000
-header_flag = True  # Cabeçalho é escrito somente no primeiro chunk
-chunks_processed = 0
-total_rows_filtered = 0
-
-logging.info("Iniciando processamento e filtragem dos dados...")
-
-# Processa o arquivo em chunks
-for chunk in pd.read_csv(input_file, sep=",", encoding="utf-8", low_memory=False, chunksize=chunk_size):
-    chunks_processed += 1
-    
-    # Remove espaços extras nos nomes das colunas
-    chunk.columns = chunk.columns.str.strip()
-    
-    # Garante que "Partida Real" e "Chegada Real" estejam preenchidos
-    chunk = chunk[chunk["Partida Real"].notna() & chunk["Chegada Real"].notna()]
-    
-    # Normaliza os valores para os filtros
-    situacao = chunk["Situação Voo"].astype(str).str.strip().str.upper()
-    codigo_tipo = chunk["Código Tipo Linha"].astype(str).str.strip().str.upper()
-    codigo_di = chunk["Código DI"].astype(str).str.strip().str.upper()
-    modelo = chunk["Modelo Equipamento"].astype(str).str.strip().str.upper()
+@@ -56,26 +61,26 @@ for chunk in pd.read_csv(input_file, sep=",", encoding="utf-8", low_memory=False
     
     origem = chunk["Sigla ICAO Aeroporto Origem"].astype(str).str.strip().str.upper()
     destino = chunk["Sigla ICAO Aeroporto Destino"].astype(str).str.strip().str.upper()
@@ -78,4 +63,4 @@ for chunk in pd.read_csv(input_file, sep=",", encoding="utf-8", low_memory=False
 
 logging.info(f"Processamento concluído. Total de chunks processados: {chunks_processed}")
 logging.info(f"Total de linhas filtradas: {total_rows_filtered}")
-logging.info(f"Novo arquivo filtrado salvo em: {output_file}")
+logging.info(f"Novo arquivo filtrado salvo em: {output_file}")␊
