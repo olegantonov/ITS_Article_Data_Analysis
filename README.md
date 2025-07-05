@@ -1,34 +1,34 @@
-# 📊 Análise de Dados de Voos da ANAC (2010–2024)
+# Analysis of ANAC Flight Data (2010–2024)
 
-**Este repositório é parte integrante do artigo:**
+**This repository is part of the article:**
 
 > **THE IMPACTS OF INTELLIGENT TRANSPORTATION SYSTEMS ON AVIATION OPERATIONAL EFFICIENCY: AN ANALYSIS OF PBN IMPLEMENTATION ON BRAZIL'S MAIN AIR ROUTES**  
-> **Autores:** Daniel Guilherme Marques da Silva, Pastor Willy Gonzales Taco  
-> **Universidade de Brasília – Programa de Pós-Graduação em Transportes**
+> **Authors:** Daniel Guilherme Marques da Silva, Pastor Willy Gonzales Taco  
+> **University of Brasília – Graduate Program in Transport Engineering**
 
 ---
 
-## 📄 Resumo (Abstract)
+## Abstract
 
 This study investigates the impacts of Intelligent Transport Systems (ITS) with an emphasis on Performance-Based Navigation (PBN) on the operational efficiency of Brazilian aviation. The analysis is based on the number of takeoffs observed on the 14 busiest air routes in the country, which accounted for more than 1% of the total regular passenger air transport volume between 2010 and 2024. The research correlates the adoption of ITS with operational gains, such as reductions in flight time, fuel savings, and lower CO₂ emissions into the atmosphere.
 
 ---
 
-## 📁 Estrutura de Diretórios
+## Directory Structure
 
-Todos os arquivos são organizados automaticamente da seguinte forma:
+All files are automatically organized as follows:
 
-- `raw/` – arquivos CSV originais por ano (2010–2024)
-- `analysis/` – resultados processados e gráficos gerados
+- `raw/` – original CSV files by year (2010–2024)  
+- `analysis/` – processed results and generated charts
 
-> Por padrão, os dados são salvos no diretório `./data/`. Para customizar, defina a variável de ambiente `ANAC_DATA_DIR` ou configure via arquivo `.env`.
+By default, data is saved in the `./data/` directory. To customize, set the `ANAC_DATA_DIR` environment variable or configure via a `.env` file.
 
 ---
 
-## ⚙️ Requisitos
+## Requirements
 
 - Python **3.10+**
-- Instale as dependências com:
+- Install dependencies with:
 
 ```bash
 pip install -r requirements.txt
@@ -36,75 +36,76 @@ pip install -r requirements.txt
 
 ---
 
-## ⚙️ Configuração via `.env`
+## Environment Configuration
 
-Crie um arquivo `.env` com a seguinte estrutura (exemplo disponível como `.env.example`):
+Create a `.env` file in the root directory:
 
 ```env
-ANAC_DATA_DIR=/caminho/absoluto/para/data
+ANAC_DATA_DIR=/absolute/path/to/data
 ```
+
+An example file `.env.example` is provided.
 
 ---
 
-## ▶️ Execução Automatizada com `main.py`
+## Automated Execution
 
-Execute todo o pipeline de forma sequencial ou a partir de qualquer etapa:
+To run the entire processing pipeline:
 
-### 🔁 Executar todas as etapas:
 ```bash
 python main.py
 ```
 
-### 🔄 Executar a partir de um passo específico:
-```bash
-python main.py --from-step 3_FILTRO_AERÓDROMOS_VARIAVEIS_AERONAVES.PY
-```
-
-Etapas disponíveis:
-- 0_DOWNLOAD_DADOS.PY
-- 1_CONSOLIDAÇÃO_DADOS.PY
-- 2_ANÁLISE_DADOS_CONSOLIDADOS.PY
-- 3_FILTRO_AERÓDROMOS_VARIAVEIS_AERONAVES.PY
-- 3.1_ANÁLISE_GRÁFICA_VOOS_POR_ANO_FILTRO.PY
-- 4_ANÁLISE_E_INSERÇÃO_DADOS_E_VARIÁVEIS.PY
-- 4.1_FILTRO_TEMPOS_DIFERENTES.PY
-- 4.3_ANÁLISE_VOOS.PY
-- 5_ANÁLISE_REGRESSÃO_LINEAR_MULTIPLA.PY
-- 00_DEPURAÇÃO.PY
-
----
-
-## 🛠️ Execução Manual (alternativa)
-
-Você também pode executar os scripts separadamente, na ordem abaixo:
+To run from a specific step:
 
 ```bash
-python 0_DOWNLOAD_DADOS.PY
-python 1_CONSOLIDACAO_DADOS.PY
-python 2_ANALISE_DADOS_CONSOLIDADOS.PY
-python 3_FILTRO_AERODROMOS_VARIAVEIS_AERONAVES.PY
-python 3.1_ANALISE_GRAFICA_VOOS_POR_ANO_FILTRO.PY
-python 4_ANALISE_E_INSERCAO_DADOS_E_VARIAVEIS.PY
-python 4.1_FILTRO_TEMPOS_DIFERENTES.PY
-python 4.3_ANALISE_VOOS.PY
-python 5_ANALISE_REGRESSAO_LINEAR_MULTIPLA.PY
-python 00_DEPURACAO.PY
+python main.py --from-step 3_FILTER_AIRPORTS_AND_AIRCRAFT_VARIABLES.PY
+```
+
+**Available steps:**
+
+- 0_DOWNLOAD_DATA.PY  
+- 1_DATA_CONSOLIDATION.PY  
+- 2_ANALYSIS_OF_CONSOLIDATED_DATA.PY  
+- 3_FILTER_AIRPORTS_AND_AIRCRAFT_VARIABLES.PY  
+- 3.1_GRAPHICAL_ANALYSIS_FLIGHTS_PER_YEAR.PY  
+- 4_ANALYSIS_AND_INSERTION_OF_VARIABLES.PY  
+- 4.1_FILTER_FLIGHTS_WITH_TIME_ANOMALIES.PY  
+- 4.3_FLIGHT_ANALYSIS.PY  
+- 5_MULTIPLE_LINEAR_REGRESSION_ANALYSIS.PY  
+- 00_DEBUGGING.PY
+
+---
+
+## Manual Execution (Alternative)
+
+To execute each step manually:
+
+```bash
+python 0_DOWNLOAD_DATA.PY
+python 1_DATA_CONSOLIDATION.PY
+python 2_ANALYSIS_OF_CONSOLIDATED_DATA.PY
+python 3_FILTER_AIRPORTS_AND_AIRCRAFT_VARIABLES.PY
+python 3.1_GRAPHICAL_ANALYSIS_FLIGHTS_PER_YEAR.PY
+python 4_ANALYSIS_AND_INSERTION_OF_VARIABLES.PY
+python 4.1_FILTER_FLIGHTS_WITH_TIME_ANOMALIES.PY
+python 4.3_FLIGHT_ANALYSIS.PY
+python 5_MULTIPLE_LINEAR_REGRESSION_ANALYSIS.PY
+python 00_DEBUGGING.PY
 ```
 
 ---
 
-## 📌 Observações
+## Notes
 
-- O script de download organiza automaticamente os dados por ano.
-- Scripts podem ser executados com segurança em chunks — ótimo para grandes volumes.
-- Logs informativos são emitidos durante cada etapa.
-- Compatível com execução local ou ambiente em nuvem (ex: Colab, Kaggle).
-
----
-
-## 📬 Contato
-
-Este projeto foi desenvolvido no contexto do Programa de Pós-Graduação em Transportes da Universidade de Brasília (UnB).  
-Dúvidas ou sugestões? Entre em contato com os autores por meio dos canais acadêmicos disponíveis.
+- The download script organizes data into folders by year.
+- Scripts support chunked execution for large datasets.
+- Informative logs are generated throughout processing.
+- Compatible with local or cloud environments (e.g., Google Colab, Kaggle).
 
 ---
+
+## Contact
+
+This project was developed as part of the Graduate Program in Transport Engineering at the University of Brasília (UnB).  
+For academic inquiries, please contact the authors via institutional channels.
