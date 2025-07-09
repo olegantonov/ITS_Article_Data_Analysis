@@ -7,48 +7,76 @@ executável.
 """
 
 import os
-import subprocess
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+from tqdm import tqdm
 from config import RAW_DIR
 
-# Diretório de destino para os dados (``data/raw`` por padrão)
-download_dir = RAW_DIR
+# Garante que o diretório RAW exista
+RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-# Caminho do executável ``wget``. Por padrão espera que ``wget`` esteja no PATH
-wget_path = os.getenv("WGET_PATH", "wget")
-
-# Garante que o diretório exista
-download_dir.mkdir(parents=True, exist_ok=True)
-
-# Lista dos anos para os quais serão baixados os arquivos (de 2010 a 2024)
-years = range(2010, 2024)
-
-# URL base para os arquivos
+# Anos de interesse
+years = range(2010, 2025)
 base_url = "https://siros.anac.gov.br/siros/registros/diversos/vra/"
+headers = {"User-Agent": "Mozilla/5.0"}
 
-# Loop pelos anos para baixar os arquivos CSV de cada ano
+print(f"[LOG] Iniciando download dos arquivos VRA (2010–2024)...")
+
 for year in years:
-    url = f"{base_url}{year}/"
-    print(f"[LOG] Iniciando download para o ano {year} a partir da URL: {url}")
+    year_url = f"{base_url}{year}/"
+    print(f"\n🔎 [ANO {year}] Acessando: {year_url}")
 
-    cmd = [
-        wget_path,
-        "-c",
-        "-r",
-        "-np",
-        "-nH",
-        "--cut-dirs=4",
-        "-R",
-        "index.html*",
-        "-P",
-        str(download_dir),
-        url,
-    ]
+    try:
+        response = requests.get(year_url, headers=headers, timeout=60)
+        response.raise_for_status()
+    except Exception as e:
+        print(f"  [ERRO] Falha ao acessar {year_url}: {e}")
+        continue
 
-    result = subprocess.run(cmd)
-    if result.returncode == 0:
-        print(f"[LOG] Download para o ano {year} concluído.")
-    else:
-        print(
-            f"[LOG] Erro no download para o ano {year}. Código: {result.returncode}"
-        )
-print("[LOG] Todos os downloads foram concluídos.")
+    soup = BeautifulSoup(response.text, "html.parser")
+    links = soup.find_all("a")
+    arquivos_csv = [a["href"] for a in links if a.get("href", "").endswith(".csv")]
+
+    if not arquivos_csv:
+        print(f"  [AVISO] Nenhum arquivo CSV encontrado para {year}.")
+        continue
+
+    # Cria subpasta por ano
+    year_dir = RAW_DIR / str(year)
+    year_dir.mkdir(parents=True, exist_ok=True)
+
+    for arquivo in arquivos_csv:
+        arquivo_url = urljoin(year_url, arquivo)
+        arquivo_nome = os.path.basename(arquivo)
+        destino = year_dir / arquivo_nome
+
+        if destino.exists():
+            print(f"  [SKIP] Já existe: {arquivo_nome}")
+            continue
+
+        try:
+            r = requests.get(arquivo_url, stream=True, timeout=60)
+            r.raise_for_status()
+
+            total_size = int(r.headers.get('content-length', 0))
+            with open(destino, "wb") as f, tqdm(
+                desc=f"  [↓] {arquivo_nome}",
+                total=total_size,
+                unit='B',
+                unit_scale=True,
+                unit_divisor=1024,
+                leave=False
+            ) as bar:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+                        bar.update(len(chunk))
+
+            print(f"  [OK] Salvo em: {destino.relative_to(RAW_DIR)}")
+
+        except Exception as e:
+            print(f"  [ERRO] Falha no download de {arquivo_nome}: {e}")
+
+print("\n✅ [FIM] Todos os downloads foram processados.")
+
