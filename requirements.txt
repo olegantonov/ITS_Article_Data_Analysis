@@ -4,3 +4,6 @@ numpy
 seaborn
 scipy
 statsmodels
+requests
+beautifulsoup4
+tqdm
