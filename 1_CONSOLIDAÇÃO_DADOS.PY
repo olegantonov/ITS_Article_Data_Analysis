@@ -67,30 +67,45 @@ extra_cols = sorted(list(union_columns.difference(baseline_cols)))
 final_columns_order = baseline_cols + extra_cols
 
 print("Colunas unificadas definidas:")
-@@ -90,26 +99,26 @@ for file_path in csv_files:
-            # Reordena as colunas de acordo com o padrão unificado
+print(final_columns_order)
+
+# Inicializa variáveis de controle
+header_flag = True
+total_files_processed = 0
+total_chunks_processed = 0
+total_rows_processed = 0
+
+# Processa os arquivos em chunks
+for file_path in csv_files:
+    try:
+        for chunk_number, chunk in enumerate(pd.read_csv(file_path, delimiter=';', encoding='utf-8',
+                                                         chunksize=100_000, low_memory=False)):
+            chunk.columns = chunk.columns.str.strip()
+
+            # Adiciona colunas ausentes com valores nulos
+            for col in final_columns_order:
+                if col not in chunk.columns:
+                    chunk[col] = None
+
+            # Reordena as colunas
             chunk = chunk[final_columns_order]
-            
-            # Escreve o chunk no arquivo de saída
+
+            # Escreve o chunk no CSV consolidado
             chunk.to_csv(output_file, mode="a", index=False, header=header_flag, encoding='utf-8', errors='replace')
             header_flag = False
-            
+
+            total_chunks_processed += 1
+            total_rows_processed += len(chunk)
+
             logging.info(f"Arquivo: {file_path} - Processado chunk {chunk_number} com {chunk.shape[0]} linhas.")
+
+        total_files_processed += 1
+
     except Exception as e:
         inconsistencies.append(f"Erro ao processar {file_path}: {str(e)}")
         continue
 
-logging.info(f"\nDados unificados salvos em: {output_file}")
-
 # Relatório final
+logging.info(f"\nDados unificados salvos em: {output_file}")
 print("\n--- Relatório Final ---")
-print(f"Total de arquivos processados: {total_files_processed}")
-print(f"Total de chunks processados: {total_chunks_processed}")
-print(f"Total de linhas processadas: {total_rows_processed}")
-
-if inconsistencies:
-    print("\nInconsistências encontradas durante o processamento:")
-    for inc in inconsistencies:
-        print(inc)
-else:
-    print("\nNenhuma inconsistência encontrada.")␊
+print(f"Total de arquivos processados: {total_files_processed
