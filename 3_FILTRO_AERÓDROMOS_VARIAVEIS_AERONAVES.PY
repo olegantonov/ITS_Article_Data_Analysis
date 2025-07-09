@@ -17,33 +17,33 @@ output_file = ANALYSIS_DIR / "FILTRADOS_DADOS.csv"
 allowed_models = {"B738", "A320", "A319", "B737", "A321"}
 allowed_codigo_tipo_linha = {"N", "C"}
 allowed_codigo_di = {"0", "4", "C"}
-# Note que, para rotas, usamos o formato ordenado (isto é, sorted([origem, destino]) juntado com '-'):
 allowed_routes = {
-    "SBRJ-SBSP",  # SBSP e SBRJ => sorted: ["SBRJ", "SBSP"]
-    "SBBR-SBSP",  # SBSP e SBBR => ["SBBR", "SBSP"]
-    "SBCF-SBSP",  # SBSP e SBCF => ["SBCF", "SBSP"]
-    "SBPA-SBGR",  # SBPA e SBGR => ["SBPA", "SBGR"]
-    "SBGR-SBSV",  # SBSV e SBGR => ["SBGR", "SBSV"]
-    "SBGR-SBRF",  # SBRF e SBGR => ["SBGR", "SBRF"]
-    "SBPA-SBSP",  # SBSP e SBPA => ["SBPA", "SBSP"]
-    "SBCT-SBSP",  # SBSP e SBCT => ["SBCT", "SBSP"]
-    "SBCT-SBGR",  # SBGR e SBCT => ["SBCT", "SBGR"]
-    "SBCF-SBGR",  # SBGR e SBCF => ["SBCF", "SBGR"]
-    "SBBR-SBGR",  # SBGR e SBBR => ["SBBR", "SBGR"]
-    "SBBR-SBRJ",  # SBRJ e SBBR => ["SBBR", "SBRJ"]
-    "SBGL-SBGR",  # SBGR e SBGL => ["SBGL", "SBGR"]
-    "SBFZ-SBGR"   # SBGR e SBFZ => ["SBFZ", "SBGR"]
+    "SBRJ-SBSP", "SBBR-SBSP", "SBCF-SBSP", "SBPA-SBGR", "SBGR-SBSV", "SBGR-SBRF",
+    "SBPA-SBSP", "SBCT-SBSP", "SBCT-SBGR", "SBCF-SBGR", "SBBR-SBGR", "SBBR-SBRJ",
+    "SBGL-SBGR", "SBFZ-SBGR"
 }
 
-# Tamanho do chunk para processamento (ajuste conforme necessário)
+# Tamanho do chunk para processamento
 chunk_size = 100000
-@@ -56,26 +61,26 @@ for chunk in pd.read_csv(input_file, sep=",", encoding="utf-8", low_memory=False
-    
+
+# Inicializa variáveis de controle
+chunks_processed = 0
+total_rows_filtered = 0
+header_flag = True
+
+# Leitura e filtragem em chunks
+for chunk in pd.read_csv(input_file, sep=",", encoding="utf-8", low_memory=False, chunksize=chunk_size):
+    chunks_processed += 1
+
+    situacao = chunk["Situação Voo"].astype(str).str.strip().str.upper()
+    codigo_tipo = chunk["Código Tipo Linha"].astype(str).str.strip().str.upper()
+    codigo_di = chunk["Código DI"].astype(str).str.strip().str.upper()
+    modelo = chunk["Modelo Equipamento"].astype(str).str.strip().str.upper()
+
     origem = chunk["Sigla ICAO Aeroporto Origem"].astype(str).str.strip().str.upper()
     destino = chunk["Sigla ICAO Aeroporto Destino"].astype(str).str.strip().str.upper()
-    # Cria a rota ordenada para que ida e volta sejam equivalentes
     sorted_route = origem.combine(destino, lambda o, d: "-".join(sorted([o, d])))
-    
+
     # Aplica os filtros
     mask = (
         (situacao == "REALIZADO") &
@@ -54,13 +54,14 @@ chunk_size = 100000
     )
     filtered_chunk = chunk[mask]
     total_rows_filtered += filtered_chunk.shape[0]
-    
+
     logging.info(f"Chunk {chunks_processed}: {chunk.shape[0]} linhas lidas; {filtered_chunk.shape[0]} linhas filtradas.")
-    
-    # Grava o chunk filtrado no arquivo de saída (modo append)
+
+    # Grava o resultado no arquivo
     filtered_chunk.to_csv(output_file, mode="a", index=False, header=header_flag, encoding="utf-8", errors="replace")
     header_flag = False
 
+# Finalização
 logging.info(f"Processamento concluído. Total de chunks processados: {chunks_processed}")
 logging.info(f"Total de linhas filtradas: {total_rows_filtered}")
 logging.info(f"Novo arquivo filtrado salvo em: {output_file}")
