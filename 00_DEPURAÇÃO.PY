@@ -41,3 +41,8 @@ print(df["Modelo Equipamento_norm"].value_counts())
 # Para investigar as rotas: cria uma coluna com a rota ordenada (para considerar ida e volta como a mesma)
 df["Rota_norm"] = df["Sigla ICAO Aeroporto Origem_norm"].combine(
     df["Sigla ICAO Aeroporto Destino_norm"],
+    lambda o, d: "-".join(sorted([o, d]))
+)
+
+print("\nRotas (ordenadas) e contagens:")
+print(df["Rota_norm"].value_counts())
