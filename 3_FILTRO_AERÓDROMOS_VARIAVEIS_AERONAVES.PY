@@ -63,4 +63,4 @@ chunk_size = 100000
 
 logging.info(f"Processamento concluído. Total de chunks processados: {chunks_processed}")
 logging.info(f"Total de linhas filtradas: {total_rows_filtered}")
-logging.info(f"Novo arquivo filtrado salvo em: {output_file}")␊
+logging.info(f"Novo arquivo filtrado salvo em: {output_file}
