@@ -108,4 +108,13 @@ for file_path in csv_files:
 # Relatório final
 logging.info(f"\nDados unificados salvos em: {output_file}")
 print("\n--- Relatório Final ---")
-print(f"Total de arquivos processados: {total_files_processed
+print(f"Total de arquivos processados: {total_files_processed}")
+print(f"Total de chunks processados: {total_chunks_processed}")
+print(f"Total de linhas processadas: {total_rows_processed}")
+
+if inconsistencies:
+    print("\nInconsistências encontradas durante o processamento:")
+    for inc in inconsistencies:
+        print(inc)
+else:
+    print("\nNenhuma inconsistência encontrada.")
