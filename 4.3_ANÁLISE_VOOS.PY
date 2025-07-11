@@ -4,36 +4,47 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
 from config import ANALYSIS_DIR
 
-# ⚠️ SOLUÇÃO DO PROBLEMA COM TKINTER: Muda o backend do Matplotlib para não usar interface gráfica
-matplotlib.use('Agg')  # Define o backend sem GUI para evitar erro do Tcl/Tk␊
-␊
-# Caminho do arquivo CSV␊
 caminho_arquivo = ANALYSIS_DIR / "ANALISE_VOO_DETALHADA_v2.csv"
 
-# ⚠️ SOLUÇÃO DO DTYPEWARNING: Especifica `dtype` para colunas problemáticas e usa `low_memory=False`
-dtype_especifico = {
-    "Número Voo": str,  # Número do voo pode ter valores misturados, força como string
-    "Justificativa": str  # Justificativa pode conter texto ou valores nulos, forçamos como string
-}
+# Carregar os dados
+_dtype = {"Número Voo": str, "Justificativa": str}
+df = pd.read_csv(caminho_arquivo, sep=',', encoding='utf-8', dtype=_dtype, low_memory=False)
 
-# Carregar os dados corrigindo os problemas de dtype
-df = pd.read_csv(caminho_arquivo, sep=',', encoding='utf-8', dtype=dtype_especifico, low_memory=False)
+# Garante existência da coluna 'Ano'
+if 'Ano' not in df.columns:
+    raise ValueError("Coluna 'Ano' não encontrada no arquivo de análise.")
 
-# Certificar-se de que a coluna "Ano do Voo" existe e está no formato correto
-df['Ano'] = pd.to_numeric(df['Ano do Voo'], errors='coerce')
+# Remove voos com tempos negativos
+if 'Tempo_Voo_Real_min' in df.columns:
+    df = df[df['Tempo_Voo_Real_min'] >= 0]
 
-# Remover voos com tempos negativos (caso existam)
-df = df[df['Tempo_Voo_Real_min'] >= 0]
+# Estatísticas anuais
+cols = ['Tempo_Voo_Real_min']
+df_analise = df.groupby('Ano')[cols].agg(['mean', 'min', 'max'])
 
-# Criar DataFrame com estatísticas anuais
-df_analise = df.groupby('Ano').agg(
-    Tempo_Medio=('Tempo_Voo_Real_min', 'mean'),
-    Tempo_Minimo=('Tempo_Voo_Real_min', 'min'),
-    Tempo_Maximo=('Tempo_Voo_Real_min', 'max')
-).reset_index()
+plt.figure(figsize=(8,5))
+plt.plot(df_analise.index, df_analise[('Tempo_Voo_Real_min','mean')], label='Tempo médio')
+plt.plot(df_analise.index, df_analise[('Tempo_Voo_Real_min','min')], label='Tempo mínimo')
+plt.plot(df_analise.index, df_analise[('Tempo_Voo_Real_min','max')], label='Tempo máximo')
+plt.legend()
+plt.xlabel('Ano')
+plt.ylabel('Tempo de voo (min)')
+plt.title('Resumo do tempo de voo ao longo dos anos')
+plt.tight_layout()
+plt.savefig(ANALYSIS_DIR / 'Tempo_voo_resumo.png')
+plt.close()
 
-# Criar ranking de aeronaves mais utilizadas por ano
+# Ranking de aeronaves por ano
 df_ranking = df.groupby(['Ano', 'Modelo Equipamento']).size().reset_index(name='Voos')
+fig, ax = plt.subplots(figsize=(10,6))
+for ano, grupo in df_ranking.groupby("Ano"):
+    top = grupo.sort_values("Voos", ascending=False).head(5)
+    ax.bar(top["Modelo Equipamento"] + f" ({ano})", top["Voos"])
+ax.set_title('Aeronaves mais utilizadas por ano (top 5)')
+ax.set_ylabel("Voos")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.savefig(ANALYSIS_DIR / 'Ranking_aeronaves.png')
+plt.close()
